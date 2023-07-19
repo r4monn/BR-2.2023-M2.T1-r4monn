@@ -1,11 +1,12 @@
 import pygame
 
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
+from dino_runner.utils.constants import BG, GAME_OVER, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 
 FONT_STYLE = "inkfree.ttf"
-
+HALF_SCREEN_HEIGHT = SCREEN_HEIGHT // 2
+HALF_SCREEN_WIDTH = SCREEN_WIDTH // 2
 
 class Game:
     def __init__(self):
@@ -23,6 +24,19 @@ class Game:
         self.y_pos_bg = 380
         self.character = Dinosaur()
         self.obstacle_manager = ObstacleManager()
+
+    def show_text(self, text, pos_x, pos_y, color = "black"):
+        font = pygame.font.Font(FONT_STYLE, 22) 
+        text = font.render(text, True, (0, 0, 0)) if color == "black" else font.render(text, True, (255, 0, 0))  # noqa: E501
+        text_rect = text.get_rect()
+        if color == "red":
+            font.set_bold(True) 
+
+        if (pos_y is None) and (pos_x is None):
+            text_rect.center = (HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT)
+        else:
+            text_rect.center = (pos_x, pos_y)
+        self.screen.blit(text, text_rect)
 
     def execute(self):
         self.running = True
@@ -56,7 +70,9 @@ class Game:
     def update_score(self):
         self.score += 1
         if self.score % 100 == 0:
-            self.game_speed += 5
+            self.game_speed += 3
+
+        self.totalScore = self.score
 
     def draw(self):
         self.clock.tick(FPS)
@@ -65,6 +81,7 @@ class Game:
         self.character.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
         self.draw_score()
+        self.draw_deaths()
         pygame.display.update() # Desenhar os objetos na tela
         pygame.display.flip()
 
@@ -78,31 +95,32 @@ class Game:
         self.x_pos_bg -= self.game_speed
 
     def draw_score(self):
-        font = pygame.font.Font(FONT_STYLE, 22)
-        text = font.render(f"Score: {self.score}", True, (0, 0, 0))
-        text_rect = text.get_rect()
-        text_rect.center = (1000, 50)
-        self.screen.blit(text, text_rect)
+        self.show_text(f"Score: {self.score}", 1000, 50)
+
+    def update_death_count(self):
+        self.death_count += 1
+    
+    def draw_deaths(self):
+        self.show_text(f"Deaths: {self.death_count}", 90, 50)
 
     def show_menu(self):
         self.screen.fill((255, 255, 255))
-        half_screen_height = SCREEN_HEIGHT // 2
-        half_screen_width = SCREEN_WIDTH // 2
 
         if self.death_count == 0:
-            font = pygame.font.Font(FONT_STYLE, 22)
-            text = font.render("Press any key to start", True, (0, 0, 0))
-            text_rect = text.get_rect()
-            text_rect.center = (half_screen_width, half_screen_height)
-            self.screen.blit(text, text_rect)
+            self.show_text("Press any key to start", None, None)
         else: ## tela de restart
-            self.screen.blit(ICON, (half_screen_width - 20, half_screen_height - 140))
-            ## mostrar mensagem de "Press any key to restart"
-            ## mostrar o score atingido
-            ## mostrar death_count
+            self.show_text("You died", HALF_SCREEN_WIDTH, 100, "red")
+            self.show_text(f"Score: {self.totalScore}", HALF_SCREEN_WIDTH, 130)
+            self.screen.blit(ICON, (HALF_SCREEN_WIDTH - 40, HALF_SCREEN_HEIGHT - 140))
+            self.show_text("Press any key to restart", None, None)
+            self.game_speed = 20
+            self.score = 0
+            ## mostrar mensagem de "Press any key to restart"   check
+            ## mostrar o score atingido   check
+            ## mostrar death_count  check
 
-            ### Resetar score e game_speed quando uma nova partida for iniciada
-            ### Criar método para remover a repetição de código para o texto
+            ### Resetar score e game_speed quando uma nova partida for iniciada   check
+            ### Criar método para remover a repetição de código para o texto   check
         pygame.display.update()
         self.handle_events_on_menu()
 
