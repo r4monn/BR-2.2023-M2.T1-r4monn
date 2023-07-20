@@ -1,5 +1,6 @@
 import pygame
 import os
+pygame.mixer.init()
 
 # Global Constants
 TITLE = "Chrome Dino Runner"
@@ -74,3 +75,5 @@ GAME_OVER = pygame.image.load(os.path.join(IMG_DIR, 'Other/GameOver.png'))
 DEFAULT_TYPE = "default"
 SHIELD_TYPE = "shield"
 HAMMER_TYPE = "hammer"
+
+SOUND = pygame.mixer.music.load("dino_runner/assets/Sound/Theme Song.mp3")
