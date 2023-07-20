@@ -76,4 +76,4 @@ DEFAULT_TYPE = "default"
 SHIELD_TYPE = "shield"
 HAMMER_TYPE = "hammer"
 
-SOUND = pygame.mixer.music.load("dino_runner/assets/Sound/Theme Song.mp3")
+SOUND = pygame.mixer.music.load("dino_runner/assets/Sound/Song.mp3")

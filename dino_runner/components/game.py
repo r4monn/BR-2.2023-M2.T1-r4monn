@@ -51,6 +51,7 @@ class Game:
 
     def run(self):
         # Game loop: events - update - draw
+        pygame.mixer.music.play(-1)
         self.playing = True
         self.obstacle_manager.reset_obstacles()
         self.power_up_manager.reset_power_ups()
