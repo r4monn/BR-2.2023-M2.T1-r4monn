@@ -1,6 +1,6 @@
 import pygame
 
-from dino_runner.utils.constants import BG, GAME_OVER, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE
+from dino_runner.utils.constants import BG, GAME_OVER, HEART, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.power_ups.power_up_manager import PowerUpManager
@@ -20,6 +20,7 @@ class Game:
         self.running = False
         self.game_speed = 20
         self.score = 0
+        self.lifes = 3
         self.death_count = 0
         self.x_pos_bg = 0
         self.y_pos_bg = 380
@@ -86,6 +87,7 @@ class Game:
         self.obstacle_manager.draw(self.screen)
         self.power_up_manager.draw(self.screen)
         self.draw_score()
+        self.draw_lifes()
         self.draw_power_up_time()
         self.draw_deaths()
         pygame.display.update() # Desenhar os objetos na tela
@@ -116,10 +118,19 @@ class Game:
         self.death_count += 1
     
     def draw_deaths(self):
-        self.show_text(f"Deaths: {self.death_count}", 90, 50)
+        self.show_text(f"Deaths: {self.death_count}", 90, 80)
 
-
-        
+    def draw_lifes(self):
+        if self.lifes == 1:
+            self.screen.blit(HEART, (50, 35))
+        elif self.lifes == 2:
+            self.screen.blit(HEART, (50, 35))
+            self.screen.blit(HEART, (70, 35))
+        elif self.lifes == 3:
+            self.screen.blit(HEART, (50, 35))
+            self.screen.blit(HEART, (70, 35))
+            self.screen.blit(HEART, (90, 35))
+        # self.show_text(f"Lifes: {self.lifes}", 200, 50)
 
     def show_menu(self):
         self.screen.fill((255, 255, 255))
@@ -150,3 +161,4 @@ class Game:
                 self.running = False
             elif event.type == pygame.KEYDOWN:
                 self.run()
+                self.lifes = 3
