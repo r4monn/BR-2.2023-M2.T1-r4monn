@@ -1,8 +1,9 @@
 import pygame
 
-from dino_runner.utils.constants import BG, GAME_OVER, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
+from dino_runner.utils.constants import BG, GAME_OVER, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
+from dino_runner.components.power_ups.power_up_manager import PowerUpManager
 
 FONT_STYLE = "inkfree.ttf"
 HALF_SCREEN_HEIGHT = SCREEN_HEIGHT // 2
@@ -24,6 +25,7 @@ class Game:
         self.y_pos_bg = 380
         self.character = Dinosaur()
         self.obstacle_manager = ObstacleManager()
+        self.power_up_manager = PowerUpManager()
 
     def show_text(self, text, pos_x, pos_y, color = "black"):
         font = pygame.font.Font(FONT_STYLE, 22) 
@@ -50,6 +52,7 @@ class Game:
         # Game loop: events - update - draw
         self.playing = True
         self.obstacle_manager.reset_obstacles()
+        self.power_up_manager.reset_power_ups()
         while self.playing:
             self.events()
             self.update()
@@ -66,6 +69,7 @@ class Game:
         self.character.update(user_input)
         self.obstacle_manager.update(self)
         self.update_score()
+        self.power_up_manager.update(self)
 
     def update_score(self):
         self.score += 1
@@ -80,7 +84,9 @@ class Game:
         self.draw_background()
         self.character.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
+        self.power_up_manager.draw(self.screen)
         self.draw_score()
+        self.draw_power_up_time()
         self.draw_deaths()
         pygame.display.update() # Desenhar os objetos na tela
         pygame.display.flip()
@@ -97,11 +103,23 @@ class Game:
     def draw_score(self):
         self.show_text(f"Score: {self.score}", 1000, 50)
 
+    def draw_power_up_time(self):
+        if self.character.has_power_up:
+            time_to_show = round((self.character.power_up_time - pygame.time.get_ticks()) / 1000, 1)  # noqa: E501
+            if time_to_show >= 0:
+                self.show_text(f"{self.character.type.capitalize()} enabled for {time_to_show} seconds", HALF_SCREEN_WIDTH, 50)  # noqa: E501
+            else:
+                self.character.has_power_up = False
+                self.character.type = DEFAULT_TYPE
+
     def update_death_count(self):
         self.death_count += 1
     
     def draw_deaths(self):
         self.show_text(f"Deaths: {self.death_count}", 90, 50)
+
+
+        
 
     def show_menu(self):
         self.screen.fill((255, 255, 255))
@@ -109,10 +127,11 @@ class Game:
         if self.death_count == 0:
             self.show_text("Press any key to start", None, None)
         else: ## tela de restart
-            self.show_text("You died", HALF_SCREEN_WIDTH, 100, "red")
-            self.show_text(f"Score: {self.totalScore}", HALF_SCREEN_WIDTH, 130)
-            self.screen.blit(ICON, (HALF_SCREEN_WIDTH - 40, HALF_SCREEN_HEIGHT - 140))
-            self.show_text("Press any key to restart", None, None)
+            self.screen.blit(GAME_OVER, (HALF_SCREEN_WIDTH - 200, 80))
+            self.show_text("You died", HALF_SCREEN_WIDTH, 130, "red")
+            self.show_text(f"Score: {self.totalScore}", HALF_SCREEN_WIDTH, 160)
+            self.screen.blit(ICON, (HALF_SCREEN_WIDTH - 40, HALF_SCREEN_HEIGHT - 110))
+            self.show_text("Press any key to restart", HALF_SCREEN_WIDTH, 320)
             self.game_speed = 20
             self.score = 0
             ## mostrar mensagem de "Press any key to restart"   check
